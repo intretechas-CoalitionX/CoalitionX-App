@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoalitionX — SDR Command Centre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=15">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════ LOGIN PAGE ══ -->
+  <div id="cxLogin" class="cx-login-overlay" role="main" aria-label="Login">
+    <div class="login-bg-glow"></div>
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="coalitionx-logo.jpg" alt="CoalitionX logo" class="login-logo">
+        <h1 class="login-title">Coalition<span>X</span></h1>
+        <p class="login-eyebrow">Strategic partnerships. Intelligent growth.</p>
+        <p class="login-sub">SDR Command Centre · Intretech</p>
+      </div>
+      <div class="workspace-selector" id="workspaceSelector">
+        <p class="workspace-selector-label">Choose your workstation</p>
+        <div class="workspace-options">
+          <button class="workspace-option active" data-workspace="intretech" id="wsIntretech" type="button">
+            <span class="ws-badge" style="background:#ff7a18;color:#000;">IT</span>
+            <span class="ws-name">Intretech Workstation</span>
+            <span class="ws-desc">Intretech SDR Command Centre</span>
+          </button>
+          <button class="workspace-option" data-workspace="universal" id="wsUniversal" type="button">
+            <span class="ws-badge" style="background:#e0e0e0;color:#000;">CX</span>
+            <span class="ws-name">Universal Workstation</span>
+            <span class="ws-desc">Generic SDR · Any Company</span>
+          </button>
+        </div>
+      </div>
+      <form id="loginForm" class="login-form" novalidate autocomplete="on">
+        <div class="login-field">
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="your@intretechuk.com" required>
+        </div>
+        <div class="login-field">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="············" required>
+        </div>
+        <div id="loginError" class="login-error hidden">Incorrect email or password — please try again.</div>
+        <button type="submit" class="primary login-submit">Sign in to CoalitionX →</button>
+      </form>
+      <p class="login-hint">Intretech internal tool — authorised users only.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ GLOBAL NAV BAR ══ -->
+  <header id="globalNav" class="global-nav hidden" role="banner" aria-label="Global navigation">
+    <div class="nav-left">
+      <img class="nav-logo" src="coalitionx-logo.jpg" alt="CoalitionX">
+      <span class="nav-brand">Coalition<span>X</span></span>
+      <span class="nav-sep">|</span>
+      <span id="navContext" class="nav-context">SDR Command Centre</span>
+    </div>
+    <nav class="nav-centre" aria-label="Module navigation">
+      <button class="nav-tab active" data-cx-module="hub">Hub</button>
+      <button class="nav-tab" data-cx-module="prospecting">Prospecting</button>
+      <button class="nav-tab" data-cx-module="opportunity">Opportunity</button>
+      <button class="nav-tab" data-cx-module="rfx">RFX Evaluator</button>
+    </nav>
+    <div class="nav-right">
+      <span id="navAccount" class="nav-account"></span>
+      <button class="nav-btn-admin" id="navAdmin" title="Admin portal">⚙ Admin</button>
+      <button class="secondary compact" id="navLogout">Sign out</button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════ ADMIN PORTAL ══ -->
+  <div id="adminPortal" class="admin-portal hidden" role="dialog" aria-label="Admin portal" aria-modal="true">
+    <div class="admin-inner">
+      <div class="admin-header">
+        <div>
+          <p class="eyebrow">CoalitionX</p>
+          <h2>Admin Portal</h2>
+          <p class="source-list">Connect your platforms to enrich strategy generation, pull live CRM intelligence, and activate AI-powered content enrichment.</p>
+        </div>
+        <button class="secondary compact" id="closeAdmin">✕ Close</button>
+      </div>
+
+      <div class="admin-grid">
+        <!-- HubSpot -->
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <div class="admin-icon-badge hs">HS</div>
+            <div>
+              <h3>HubSpot CRM</h3>
+              <div class="admin-status-row">
+                <span class="status-dot" id="hsDot"></span>
+                <span class="status-label" id="hsStatusLabel">Not connected</span>
+              </div>
+            </div>
+          </div>
+          <p class="admin-card-desc">Connect your HubSpot account via OAuth to pull live contact intelligence, notes, tasks and lifecycle stages directly into strategy generation.</p>
+          <div class="admin-fields">
+            <div class="hs-oauth-info">
+              <p>Authorise CoalitionX to read and write CRM records in your HubSpot portal. You will be redirected to HubSpot and back automatically.</p>
+              <ul>
+                <li>Contacts &amp; Companies — read</li>
+                <li>Notes — read &amp; write</li>
+                <li>Tasks — read &amp; write</li>
+              </ul>
+            </div>
+          </div>
+          <div class="admin-card-actions">
+            <a class="primary compact hs-connect-btn" id="hsConnectBtn" href="/api/hubspot-auth-start">Connect HubSpot →</a>
+            <button class="secondary compact" id="hsTest">Test connection</button>
+          </div>
+          <div id="hsResult" class="admin-result"></div>
+        </div>
+
+        <!-- AI Enrichment -->
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <div class="admin-icon-badge ai">AI</div>
+            <div>
+              <h3>AI Enrichment</h3>
+              <div class="admin-status-row">
+                <span class="status-dot connected" id="aiDot"></span>
+                <span class="status-label" id="aiStatusLabel">Claude AI · Configured</span>
+              </div>
+            </div>
+          </div>
+          <p class="admin-card-desc">AI enrichment powered by Anthropic Claude. Account intelligence, opening hooks, discovery questions and strategic priorities are generated automatically when you run a strategy. Results are cached for 24h to minimise API usage.</p>
+          <div class="admin-fields">
+            <div class="hs-oauth-info">
+              <p>The AI engine is configured server-side. No action required — enrichment activates automatically when you generate a strategy for any account.</p>
+              <ul>
+                <li>Account snapshot &amp; company intelligence</li>
+                <li>Role-specific opening hooks</li>
+                <li>Discovery questions tailored to persona</li>
+                <li>Strategic priority &amp; risk flags</li>
+                <li>HubSpot CRM note suggestions</li>
+              </ul>
+            </div>
+          </div>
+          <div class="admin-card-actions">
+            <button class="primary compact" id="aiTest">Test AI connection</button>
+          </div>
+          <div id="aiResult" class="admin-result"></div>
+        </div>
+
+        <!-- Apollo.io -->
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <div class="admin-icon-badge ap">AP</div>
+            <div>
+              <h3>Apollo.io</h3>
+              <div class="admin-status-row">
+                <span class="status-dot" id="apDot"></span>
+                <span class="status-label" id="apStatusLabel">Not connected</span>
+              </div>
+            </div>
+          </div>
+          <p class="admin-card-desc">Link Apollo.io to auto-enrich contact data, surface decision-makers, verify emails and populate prospect fields from the input form.</p>
+          <div class="admin-fields">
+            <label>Apollo API Key
+              <div class="admin-input-row">
+                <input type="password" id="apKey" placeholder="Apollo API key" autocomplete="off">
+                <button type="button" class="admin-toggle-vis" data-target="apKey">👁</button>
+              </div>
+            </label>
+          </div>
+          <div class="admin-card-actions">
+            <button class="primary compact" id="apTest">Test connection</button>
+            <button class="secondary compact" id="apSave">Save</button>
+          </div>
+          <div id="apResult" class="admin-result"></div>
+        </div>
+
+        <!-- Company Profile (Universal Workstation only) -->
+        <div class="admin-card" id="companyProfileCard" style="display:none;">
+          <div class="admin-card-head">
+            <div class="admin-icon-badge" style="background:var(--surface-2);border:1px solid var(--b1);">🏢</div>
+            <div><h3>Company Profile</h3><div class="admin-status-row"><span class="status-label" id="companyStatusLabel">Universal Workstation</span></div></div>
+          </div>
+          <p class="admin-card-desc">Configure your company profile for the Universal Workstation. This replaces Intretech-specific content with your company's branding and capabilities.</p>
+          <div class="admin-fields">
+            <label>Company name<input id="companyName" placeholder="e.g. Acme Manufacturing"></label>
+            <label>Short description<input id="companyDesc" placeholder="e.g. End-to-end electronics manufacturer"></label>
+            <label>Key capabilities<textarea id="companyCapabilities" rows="4" placeholder="e.g. PCB assembly, injection moulding, FATP, quality testing, R&amp;D engineering..."></textarea></label>
+            <label>Target verticals / industries<input id="companyVerticals" placeholder="e.g. Consumer electronics, Medical devices, Automotive"></label>
+          </div>
+          <div class="admin-card-actions"><button class="primary compact" id="saveCompanyProfile">Save profile</button></div>
+          <div id="companyProfileResult" class="admin-result"></div>
+        </div>
+
+        <!-- User Preferences -->
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <div class="admin-icon-badge user">👤</div>
+            <div>
+              <h3>User Preferences</h3>
+              <div class="admin-status-row">
+                <span class="status-label" id="adminUserLabel">Signed in</span>
+              </div>
+            </div>
+          </div>
+          <p class="admin-card-desc">Set your display name, team and defaults for faster account setup on every session.</p>
+          <div class="admin-fields">
+            <label>Display name<input id="adminName" placeholder="e.g. James Wilson"></label>
+            <label>Team / BU<input id="adminTeam" placeholder="e.g. UK SDR Team"></label>
+            <label>Default vertical
+              <select id="adminDefaultVertical">
+                <option>Air purification &amp; home appliances</option>
+                <option>Medical &amp; health devices</option>
+                <option>Automotive &amp; e-mobility</option>
+                <option>Audio, gaming &amp; consumer electronics</option>
+                <option>AgriTech / rugged IoT</option>
+                <option>Water purification</option>
+                <option>Robotics / industrial automation</option>
+                <option>Smart home / connected devices</option>
+              </select>
+            </label>
+            <label>Default tone
+              <select id="adminDefaultTone">
+                <option>Consultative</option>
+                <option>Direct</option>
+                <option>Technical</option>
+                <option>Executive</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-card-actions">
+            <button class="secondary compact" id="adminSavePrefs">Save preferences</button>
+            <button class="secondary compact danger" id="adminSignOut">Sign out</button>
+          </div>
+          <div id="adminPrefsResult" class="admin-result"></div>
+        </div>
+      </div>
+
+      <div class="admin-status-bar">
+        <div class="admin-status-item" id="adminStatusHs"><span class="status-dot"></span><span>HubSpot: <strong>Disconnected</strong></span></div>
+        <div class="admin-status-item" id="adminStatusAi"><span class="status-dot"></span><span>AI Enrichment: <strong>Disconnected</strong></span></div>
+        <div class="admin-status-item" id="adminStatusAp"><span class="status-dot"></span><span>Apollo: <strong>Disconnected</strong></span></div>
+        <div class="admin-status-item"><span>Signed in as: <strong id="adminStatusUserName">—</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ MAIN APP ══ -->
+  <main class="app-shell hidden" id="appShell">
+
+    <!-- ═══════════════════════════════════════ HUB DASHBOARD ══ -->
+    <section id="cxHub" class="cx-module cx-hub-section">
+      <div class="cx-hub">
+        <div class="hub-hero">
+          <div class="hub-hero-text">
+            <p class="eyebrow">CoalitionX SDR Command Centre</p>
+            <h1 class="hub-title">Coalition<span>X</span></h1>
+            <p class="hub-subtitle">Strategic partnerships. Intelligent growth. Choose your workstream to begin.</p>
+          </div>
+          <div class="hub-hero-meta">
+            <span id="hubUserGreet" class="hub-user-greet"></span>
+          </div>
+        </div>
+        <div class="pillar-grid">
+          <!-- Pillar 1 -->
+          <div class="pillar-card" data-cx-module="prospecting" role="button" tabindex="0">
+            <div class="pillar-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M7 27c0-5 4-8 9-8s9 3 9 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="pillar-label">01</div>
+            <h2 class="pillar-title">CoalitionX<br>Prospecting</h2>
+            <p class="pillar-sub">Account Research · Prospecting Strategy · Persona Strategy</p>
+            <div class="pillar-enter">Enter <span>→</span></div>
+          </div>
+          <!-- Pillar 2 -->
+          <div class="pillar-card" data-cx-module="opportunity" role="button" tabindex="0">
+            <div class="pillar-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="3" width="26" height="26" rx="5" stroke="currentColor" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pillar-label">02</div>
+            <h2 class="pillar-title">CoalitionX<br>Opportunity Developer</h2>
+            <p class="pillar-sub">Lead Qualification · Deal Qualification · RFX Stage</p>
+            <div class="pillar-enter">Enter <span>→</span></div>
+          </div>
+          <!-- Pillar 3 -->
+          <div class="pillar-card" data-cx-module="rfx" role="button" tabindex="0">
+            <div class="pillar-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 6h20v20H6z" stroke="currentColor" stroke-width="1.5" rx="3"/><path d="M11 12h10M11 16h7M11 20h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="pillar-label">03</div>
+            <h2 class="pillar-title">CoalitionX<br>RFX Evaluator</h2>
+            <p class="pillar-sub">RFX Evaluation · RFQ → RFP → RFI · Tactical Strategies</p>
+            <div class="pillar-enter">Enter <span>→</span></div>
+          </div>
+        </div>
+        <div class="hub-footer-strip">
+          <span class="footer-company-label">Intretech · CoalitionX SDR Command Centre</span>
+          <span id="hubVersionBadge" class="version-badge">v15 · 2026</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ PROSPECTING MODULE ══ -->
+    <section id="cxProspecting" class="cx-module hidden">
+      <div class="module-shell">
+        <!-- Sidebar -->
+        <aside class="module-sidebar">
+          <div class="module-sidebar-brand">
+            <button class="module-back-btn" data-cx-module="hub">← Hub</button>
+            <p class="eyebrow" style="margin-top:10px;">CoalitionX</p>
+            <h3 style="color:var(--brand-hi);margin:0;">Prospecting</h3>
+          </div>
+          <nav class="module-sidebar-nav">
+            <button class="module-nav-btn active" data-pro-section="tracker">Account Tracker</button>
+            <button class="module-nav-btn" data-pro-section="research">Account Research</button>
+            <button class="module-nav-btn" data-pro-section="strategy">Prospecting Strategy</button>
+            <button class="module-nav-btn" data-pro-section="persona">Persona Strategy</button>
+          </nav>
+        </aside>
+        <!-- Content area -->
+        <div class="module-content">
+
+          <!-- ─── Account Tracker ─── -->
+          <div id="proTracker" class="pro-section">
+            <div class="section-header-bar">
+              <div>
+                <p class="eyebrow">Prospecting · Module 1</p>
+                <h2>Account Tracker</h2>
+                <p class="source-list">Manage your target accounts. Track stage, champions and last contact. Open any account into Account Research for a full GTM strategy.</p>
+              </div>
+              <div class="section-header-actions">
+                <select id="trackerFilterVertical" class="compact-select">
+                  <option value="">All verticals</option>
+                  <option>Air purification &amp; home appliances</option>
+                  <option>Medical &amp; health devices</option>
+                  <option>Automotive &amp; e-mobility</option>
+                  <option>Audio, gaming &amp; consumer electronics</option>
+                  <option>AgriTech / rugged IoT</option>
+                  <option>Water purification</option>
+                  <option>Robotics / industrial automation</option>
+                  <option>Smart home / connected devices</option>
+                </select>
+                <button class="primary compact" id="addAccountBtn">+ Add Account</button>
+              </div>
+            </div>
+            <div id="accountCardList" class="account-cards"></div>
+          </div>
+
+          <!-- ─── Account Research ─── -->
+          <div id="proResearch" class="pro-section hidden">
+            <div class="section-header-bar">
+              <div>
+                <p class="eyebrow">Prospecting · Module 1</p>
+                <h2>Account Research</h2>
+                <p class="source-list">Enter account and prospect details, then generate a full AI-enriched research brief including CRM intelligence, company snapshot, search queries and vertical account suggestions.</p>
+              </div>
+              <div class="section-header-actions">
+                <button id="exportPdf" class="secondary compact">Export PDF</button>
+                <button id="saveDraft" class="secondary compact">Save draft</button>
+                <button id="exportBrief" class="secondary compact">Export brief</button>
+                <button id="copyAll" class="secondary compact">Copy all</button>
+              </div>
+            </div>
+
+            <!-- Input form (shared) -->
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">Target</div>
+                  <form id="strategyForm" class="form-grid">
+                    <label>Account name<input id="accountName" name="accountName" placeholder="Blueair, Philips, Jabra"></label>
+                    <div class="field-pair">
+                      <label>Prospect<input id="prospectName" name="prospectName" placeholder="Sarah Jones"></label>
+                      <label>Role
+                        <select id="role" name="role">
+                          <optgroup label="R&amp;D / Engineering">
+                            <option>Director of Product Engineering</option>
+                            <option>VP R&amp;D</option>
+                            <option>Head of Innovation</option>
+                            <option>Head of NPI</option>
+                            <option>Chief Technology Officer</option>
+                            <option>VP of Hardware Engineering</option>
+                            <option>Electronics Engineering Manager</option>
+                            <option>Mechanical Engineering Director</option>
+                            <option>Head of Test &amp; Validation Engineering</option>
+                            <option>Director of Systems Engineering</option>
+                            <option>Head of Product Development</option>
+                          </optgroup>
+                          <optgroup label="Manufacturing / Operations">
+                            <option>VP of Manufacturing</option>
+                            <option>Director of Operations</option>
+                            <option>Manufacturing Engineering Director</option>
+                            <option>Plant Manager</option>
+                            <option>Head of Smart Factory / Industry 4.0</option>
+                            <option>Head of Digital Transformation</option>
+                            <option>Chief Digital Officer</option>
+                            <option>Head of Lean &amp; Continuous Improvement</option>
+                            <option>Head of Industrial Engineering</option>
+                          </optgroup>
+                          <optgroup label="Supply Chain / Procurement">
+                            <option>Procurement Director</option>
+                            <option>Category Manager</option>
+                            <option>Supply Chain Director</option>
+                            <option>Director of Strategic Sourcing</option>
+                          </optgroup>
+                          <optgroup label="Quality / Compliance">
+                            <option>Quality Director</option>
+                            <option>Director of Quality Assurance</option>
+                          </optgroup>
+                          <optgroup label="Executive / Programme">
+                            <option>Chief Operating Officer</option>
+                            <option>General Manager</option>
+                            <option>Programme Director / TPM Lead</option>
+                          </optgroup>
+                        </select>
+                      </label>
+                    </div>
+                    <div id="rolePreviewPanel" class="role-preview-panel hidden"></div>
+                    <label>Prospect email<input id="prospectEmail" name="prospectEmail" type="email" placeholder="name@company.com"></label>
+                    <label>LinkedIn profile or notes<input id="linkedin" name="linkedin" placeholder="Profile URL or key profile details"></label>
+                    <label>Industry / vertical
+                      <select id="vertical" name="vertical">
+                        <option>Air purification &amp; home appliances</option>
+                        <option>Medical &amp; health devices</option>
+                        <option>Automotive &amp; e-mobility</option>
+                        <option>Audio, gaming &amp; consumer electronics</option>
+                        <option>AgriTech / rugged IoT</option>
+                        <option>Water purification</option>
+                        <option>Robotics / industrial automation</option>
+                        <option>Smart home / connected devices</option>
+                      </select>
+                    </label>
+                    <div class="field-pair">
+                      <label>Signal
+                        <select id="signal" name="signal">
+                          <option>New product development or refresh</option>
+                          <option>Supplier diversification / localisation</option>
+                          <option>Scaling from prototype to production</option>
+                          <option>Quality, reliability or compliance concern</option>
+                          <option>Cost-down or landed-cost pressure</option>
+                          <option>RFQ / RFI preparation</option>
+                          <option>Smart factory / digital transformation</option>
+                          <option>Automation &amp; production efficiency</option>
+                        </select>
+                      </label>
+                      <label>Tone
+                        <select id="tone" name="tone">
+                          <option>Consultative</option>
+                          <option>Direct</option>
+                          <option>Technical</option>
+                          <option>Executive</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label>Objective
+                      <select id="objective" name="objective">
+                        <option>Book discovery call</option>
+                        <option>Build internal champion</option>
+                        <option>Send relevant technical content</option>
+                        <option>Qualify RFQ potential</option>
+                        <option>Re-engage quiet account</option>
+                        <option>Invite to factory visit</option>
+                        <option>Propose smart manufacturing review</option>
+                      </select>
+                    </label>
+                    <label class="full">SDR notes<textarea id="notes" name="notes" rows="4" placeholder="Known pains, product line, recent account signals, QBR notes, HubSpot context, or prior outreach."></textarea></label>
+                    <div class="actions full">
+                      <button type="submit" class="primary" id="generateResearchBtn">Generate Research</button>
+                      <button type="button" id="generateAndIntel" class="secondary">Generate + Intel</button>
+                      <button type="button" id="clearForm" class="secondary">Clear</button>
+                      <button type="button" id="loadExample" class="secondary">Load Example</button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- HubSpot CRM panel -->
+                <article class="intel-panel pro-intel-panel" id="intelligencePanel">
+                  <div class="panel-head">
+                    <div><p class="eyebrow">Account intelligence</p><h2>HubSpot CRM context</h2></div>
+                    <span class="live-badge">CRM</span>
+                  </div>
+                  <p class="source-list">Pull CRM intelligence: lifecycle stage, owner, recent notes, tasks and outreach prompts.</p>
+                  <div class="inline-form intel-form">
+                    <label>Contact email<input id="intelContactEmail" placeholder="prospect@company.com"></label>
+                    <label>Contact ID<input id="intelContactId" placeholder="Optional"></label>
+                    <label>Company ID<input id="intelCompanyId" placeholder="Optional"></label>
+                    <label>Task due date<input id="intelDueDate" type="date"></label>
+                  </div>
+                  <div class="actions wrap-actions">
+                    <button class="primary" id="fetchHubspotIntel" type="button">Pull intelligence</button>
+                    <button class="secondary" id="logHubspotNote" type="button">Log strategy note</button>
+                    <button class="secondary" id="createHubspotTask" type="button">Create task</button>
+                  </div>
+                  <div id="hubspotStatus" class="status-text">Set account/contact details, then pull intelligence.</div>
+                  <div id="hubspotIntel" class="intel-results">
+                    <article class="intel-empty"><strong>No CRM intelligence loaded yet.</strong><span>Use this before writing outreach so SDRs can avoid duplicating conversations and can reference known context.</span></article>
+                  </div>
+                </article>
+              </div>
+
+              <!-- Output column -->
+              <div class="pro-output-col" id="proResearchOutput">
+                <div class="toolbar">
+                  <div>
+                    <p class="eyebrow">CoalitionX command centre</p>
+                    <h2 id="outputTitle">Ready for account input</h2>
+                    <p class="version-badge">SDR Command Centre · Intretech</p>
+                  </div>
+                </div>
+
+                <section class="account-brief">
+                  <div>
+                    <p class="eyebrow">Current account</p>
+                    <h2 id="briefAccount">No account selected</h2>
+                    <p id="briefMeta">Add a target account to activate strategy, news, outreach and CRM intelligence.</p>
+                  </div>
+                  <div class="brief-metrics">
+                    <span><strong id="briefPersona">-</strong>Persona</span>
+                    <span><strong id="briefSignal">-</strong>Signal</span>
+                    <span><strong id="briefObjective">-</strong>Objective</span>
+                  </div>
+                </section>
+
+                <section class="account-focus-panel" id="accountFocusPanel" aria-label="Vertical account focus"></section>
+
+                <div id="emptyState" class="empty-state">
+                  <div class="empty-mark">CX</div>
+                  <h2>Turn account research into a CoalitionX sales strategy.</h2>
+                  <p>Enter an account, prospect role, LinkedIn notes, and a trigger. The workbench will map Intretech capabilities to likely pain points, then draft a GTM strategy, LinkedIn touches, email thread, call script, and article angle.</p>
+                </div>
+
+                <!-- Research output tabs: News, Accounts, Product, Research (subset of full tabs) -->
+                <div id="results" class="results hidden">
+                  <nav class="tabs" aria-label="Output sections" id="tabsNav">
+                    <button class="tab active" data-tab="strategy">Strategy</button>
+                    <button class="tab" data-tab="accounts">Account Suggestions</button>
+                    <button class="tab" data-tab="product">Product Match</button>
+                    <button class="tab" data-tab="news">News</button>
+                    <button class="tab" data-tab="outreach">Outreach</button>
+                    <button class="tab" data-tab="call">Call</button>
+                    <button class="tab" data-tab="research">Research</button>
+                    <button class="tab" data-tab="competitor">Competitor Intel</button>
+                    <button class="tab" data-tab="awards">Awards &amp; Signals</button>
+                    <button class="tab" data-tab="swot">SWOT</button>
+                    <button class="tab" data-tab="evaluation">RFX Evaluation</button>
+                    <button class="tab" data-tab="playbook">Account Playbook</button>
+                  </nav>
+                  <section class="tab-panel active" id="strategy"></section>
+                  <section class="tab-panel" id="accounts"></section>
+                  <section class="tab-panel" id="product"></section>
+                  <section class="tab-panel" id="news"></section>
+                  <section class="tab-panel" id="outreach"></section>
+                  <section class="tab-panel" id="call"></section>
+                  <section class="tab-panel" id="research"></section>
+                  <section class="tab-panel" id="competitor"></section>
+                  <section class="tab-panel" id="awards"></section>
+                  <section class="tab-panel" id="swot"></section>
+                  <section class="tab-panel" id="evaluation"></section>
+                  <section class="tab-panel" id="playbook"></section>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── Prospecting Strategy ─── -->
+          <div id="proStrategy" class="pro-section hidden">
+            <div class="section-header-bar">
+              <div>
+                <p class="eyebrow">Prospecting · Module 1</p>
+                <h2>Prospecting Strategy</h2>
+                <p class="source-list">Generate a full GTM strategy playbook including timeline, outreach sequence, competitor intel and SWOT analysis. Auto-populates from any account opened in the tracker.</p>
+              </div>
+            </div>
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">Generate Prospecting Strategy</div>
+                  <label>Account name<input id="psAccountName" placeholder="Blueair, Philips…"></label>
+                  <div class="field-pair">
+                    <label>Prospect<input id="psProspectName" placeholder="Sarah Jones"></label>
+                    <label>Role<input id="psRole" placeholder="Director of Product Engineering"></label>
+                  </div>
+                  <label>Vertical
+                    <select id="psVertical">
+                      <option>Air purification &amp; home appliances</option>
+                      <option>Medical &amp; health devices</option>
+                      <option>Automotive &amp; e-mobility</option>
+                      <option>Audio, gaming &amp; consumer electronics</option>
+                      <option>AgriTech / rugged IoT</option>
+                      <option>Water purification</option>
+                      <option>Robotics / industrial automation</option>
+                      <option>Smart home / connected devices</option>
+                    </select>
+                  </label>
+                  <label>Signal
+                    <select id="psSignal">
+                      <option>New product development or refresh</option>
+                      <option>Supplier diversification / localisation</option>
+                      <option>Scaling from prototype to production</option>
+                      <option>Quality, reliability or compliance concern</option>
+                      <option>Cost-down or landed-cost pressure</option>
+                      <option>RFQ / RFI preparation</option>
+                      <option>Smart factory / digital transformation</option>
+                      <option>Automation &amp; production efficiency</option>
+                    </select>
+                  </label>
+                  <div class="field-pair">
+                    <label>Tone
+                      <select id="psTone">
+                        <option>Consultative</option><option>Direct</option><option>Technical</option><option>Executive</option>
+                      </select>
+                    </label>
+                    <label>Objective
+                      <select id="psObjective">
+                        <option>Book discovery call</option>
+                        <option>Build internal champion</option>
+                        <option>Send relevant technical content</option>
+                        <option>Qualify RFQ potential</option>
+                        <option>Re-engage quiet account</option>
+                        <option>Invite to factory visit</option>
+                        <option>Propose smart manufacturing review</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label class="full">SDR notes<textarea id="psNotes" rows="3" placeholder="Known pains, triggers, prior contact history…"></textarea></label>
+                  <div class="actions full">
+                    <button class="primary" id="generateStrategyBtn">Generate Strategy</button>
+                  </div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="psOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">S</div><h2>Prospecting strategy generates here.</h2><p>Fill the form and click Generate Strategy to produce a full GTM playbook, outreach sequence and competitive positioning.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── Persona Strategy ─── -->
+          <div id="proPersona" class="pro-section hidden">
+            <div class="section-header-bar">
+              <div>
+                <p class="eyebrow">Prospecting · Module 1</p>
+                <h2>Persona Strategy</h2>
+                <p class="source-list">Generate a role-specific persona brief: pain points, discovery questions, messaging framework, call script and award signals.</p>
+              </div>
+            </div>
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">Generate Persona Brief</div>
+                  <label>Account name<input id="ppAccountName" placeholder="Blueair, Philips…"></label>
+                  <label>Prospect name<input id="ppProspectName" placeholder="Sarah Jones"></label>
+                  <label>Role
+                    <select id="ppRole">
+                      <optgroup label="R&amp;D / Engineering">
+                        <option>Director of Product Engineering</option>
+                        <option>VP R&amp;D</option>
+                        <option>Head of Innovation</option>
+                        <option>Head of NPI</option>
+                        <option>Chief Technology Officer</option>
+                        <option>VP of Hardware Engineering</option>
+                      </optgroup>
+                      <optgroup label="Manufacturing / Operations">
+                        <option>VP of Manufacturing</option>
+                        <option>Director of Operations</option>
+                        <option>Plant Manager</option>
+                        <option>Head of Smart Factory / Industry 4.0</option>
+                      </optgroup>
+                      <optgroup label="Supply Chain / Procurement">
+                        <option>Procurement Director</option>
+                        <option>Category Manager</option>
+                        <option>Supply Chain Director</option>
+                      </optgroup>
+                      <optgroup label="Quality / Compliance">
+                        <option>Quality Director</option>
+                        <option>Director of Quality Assurance</option>
+                      </optgroup>
+                      <optgroup label="Executive / Programme">
+                        <option>Chief Operating Officer</option>
+                        <option>General Manager</option>
+                        <option>Programme Director / TPM Lead</option>
+                      </optgroup>
+                    </select>
+                  </label>
+                  <label>Vertical
+                    <select id="ppVertical">
+                      <option>Air purification &amp; home appliances</option>
+                      <option>Medical &amp; health devices</option>
+                      <option>Automotive &amp; e-mobility</option>
+                      <option>Audio, gaming &amp; consumer electronics</option>
+                      <option>AgriTech / rugged IoT</option>
+                      <option>Water purification</option>
+                      <option>Robotics / industrial automation</option>
+                      <option>Smart home / connected devices</option>
+                    </select>
+                  </label>
+                  <label class="full">SDR notes<textarea id="ppNotes" rows="3" placeholder="Known context about this prospect…"></textarea></label>
+                  <div class="actions full">
+                    <button class="primary" id="generatePersonaBtn">Generate Persona Brief</button>
+                  </div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="ppOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">P</div><h2>Persona brief generates here.</h2><p>Fill the form and click Generate Persona Brief to produce a role-specific messaging framework, discovery questions and call script.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /module-content -->
+      </div><!-- /module-shell -->
+    </section>
+
+    <!-- ══════════════════════════════ OPPORTUNITY DEVELOPER ══ -->
+    <section id="cxOpportunity" class="cx-module hidden">
+      <div class="module-shell module-shell-top">
+        <div class="module-top-header">
+          <button class="module-back-btn" data-cx-module="hub">← Hub</button>
+          <div>
+            <p class="eyebrow">CoalitionX</p>
+            <h2 style="color:var(--brand-hi);">Opportunity Developer</h2>
+          </div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-opp-section="lead">Lead Qualification</button>
+            <button class="toggle-btn" data-opp-section="deal">Deal Qualification</button>
+            <button class="toggle-btn" data-opp-section="rfxstage">RFX Stage</button>
+          </div>
+        </div>
+
+        <div class="module-content module-content-full">
+
+          <!-- Lead Qualification -->
+          <div id="oppLead" class="opp-section">
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">Lead Qualification</div>
+                  <label>Account<input id="lqAccount" placeholder="Company name"></label>
+                  <div class="field-pair">
+                    <label>Prospect<input id="lqProspect" placeholder="Name"></label>
+                    <label>Role<input id="lqRole" placeholder="Job title"></label>
+                  </div>
+                  <label>Vertical
+                    <select id="lqVertical">
+                      <option>Air purification &amp; home appliances</option>
+                      <option>Medical &amp; health devices</option>
+                      <option>Automotive &amp; e-mobility</option>
+                      <option>Audio, gaming &amp; consumer electronics</option>
+                      <option>AgriTech / rugged IoT</option>
+                      <option>Water purification</option>
+                      <option>Robotics / industrial automation</option>
+                      <option>Smart home / connected devices</option>
+                    </select>
+                  </label>
+                  <label>Signal
+                    <select id="lqSignal">
+                      <option>New product development or refresh</option>
+                      <option>Supplier diversification / localisation</option>
+                      <option>Scaling from prototype to production</option>
+                      <option>Quality, reliability or compliance concern</option>
+                      <option>Cost-down or landed-cost pressure</option>
+                      <option>RFQ / RFI preparation</option>
+                      <option>Smart factory / digital transformation</option>
+                      <option>Automation &amp; production efficiency</option>
+                    </select>
+                  </label>
+                  <label class="full">Lead notes<textarea id="lqNotes" rows="4" placeholder="How did you find this lead? What signals suggest readiness? Prior contact, LinkedIn activity, company news…"></textarea></label>
+                  <div class="actions full"><button class="primary" id="qualifyLeadBtn">Qualify Lead</button></div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="lqOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">ICP</div><h2>Lead qualification generates here.</h2><p>Fill the lead details and click Qualify Lead to generate an ICP Fit Score, BANT checklist and recommended next action.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deal Qualification -->
+          <div id="oppDeal" class="opp-section hidden">
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">Deal Qualification</div>
+                  <label>Account<input id="dqAccount" placeholder="Company name"></label>
+                  <div class="field-pair">
+                    <label>Prospect<input id="dqProspect" placeholder="Name"></label>
+                    <label>Stage
+                      <select id="dqStage">
+                        <option>Discovery</option>
+                        <option>Technical Review</option>
+                        <option>RFQ Prep</option>
+                        <option>Proposal</option>
+                        <option>Negotiation</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label>Vertical
+                    <select id="dqVertical">
+                      <option>Air purification &amp; home appliances</option>
+                      <option>Medical &amp; health devices</option>
+                      <option>Automotive &amp; e-mobility</option>
+                      <option>Audio, gaming &amp; consumer electronics</option>
+                      <option>AgriTech / rugged IoT</option>
+                      <option>Water purification</option>
+                      <option>Robotics / industrial automation</option>
+                      <option>Smart home / connected devices</option>
+                    </select>
+                  </label>
+                  <label>Deal value estimate<input id="dqValue" placeholder="e.g. $2M–$5M annually"></label>
+                  <label class="full">Deal notes<textarea id="dqNotes" rows="4" placeholder="Current deal context: what is known about budget, decision process, stakeholders, timeline…"></textarea></label>
+                  <div class="actions full"><button class="primary" id="qualifyDealBtn">Qualify Deal</button></div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="dqOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">DH</div><h2>Deal qualification generates here.</h2><p>Fill the deal details and click Qualify Deal to generate a Deal Health Score, MEDDIC checklist and stakeholder map.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RFX Stage -->
+          <div id="oppRfxStage" class="opp-section hidden">
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">RFX Stage Strategy</div>
+                  <label>Account<input id="rqAccount" placeholder="Company name"></label>
+                  <div class="field-pair">
+                    <label>Prospect<input id="rqProspect" placeholder="Name"></label>
+                    <label>RFX Type
+                      <select id="rqType">
+                        <option>RFI</option>
+                        <option>RFQ</option>
+                        <option>RFP</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label>Vertical
+                    <select id="rqVertical">
+                      <option>Air purification &amp; home appliances</option>
+                      <option>Medical &amp; health devices</option>
+                      <option>Automotive &amp; e-mobility</option>
+                      <option>Audio, gaming &amp; consumer electronics</option>
+                      <option>AgriTech / rugged IoT</option>
+                      <option>Water purification</option>
+                      <option>Robotics / industrial automation</option>
+                      <option>Smart home / connected devices</option>
+                    </select>
+                  </label>
+                  <label>Product type<input id="rqProduct" placeholder="e.g. Connected air purifier, HMI module…"></label>
+                  <div class="field-pair">
+                    <label>Volume estimate<input id="rqVolume" placeholder="e.g. 250K units/yr"></label>
+                    <label>Timeline<input id="rqTimeline" placeholder="e.g. RFQ needed Q3 2026"></label>
+                  </div>
+                  <label class="full">RFX notes<textarea id="rqNotes" rows="3" placeholder="Known requirements, scope, customer context, current CM status…"></textarea></label>
+                  <div class="actions full"><button class="primary" id="buildRfxStrategyBtn">Build RFX Strategy</button></div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="rqOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">RFX</div><h2>RFX strategy generates here.</h2><p>Fill the RFX details and click Build RFX Strategy to generate a readiness checklist, capability mapping and competitive positioning.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ RFX EVALUATOR ══ -->
+    <section id="cxRfx" class="cx-module hidden">
+      <div class="module-shell module-shell-top">
+        <div class="module-top-header">
+          <button class="module-back-btn" data-cx-module="hub">← Hub</button>
+          <div>
+            <p class="eyebrow">CoalitionX</p>
+            <h2 style="color:var(--brand-hi);">RFX Evaluator</h2>
+          </div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-rfx-section="evaluation">RFX Evaluation</button>
+            <button class="toggle-btn" data-rfx-section="stages">Stage Progression</button>
+            <button class="toggle-btn" data-rfx-section="tactics">Tactical Strategies</button>
+          </div>
+        </div>
+
+        <div class="module-content module-content-full">
+
+          <!-- RFX Evaluation -->
+          <div id="rfxEvaluation" class="rfx-section-panel">
+            <div class="pro-form-layout">
+              <div class="pro-form-col">
+                <div class="pro-form-card">
+                  <div class="section-title">RFX Evaluation</div>
+                  <label>Account<input id="reAccount" placeholder="Company name"></label>
+                  <div class="field-pair">
+                    <label>RFX Type
+                      <select id="reType">
+                        <option>RFI</option><option>RFQ</option><option>RFP</option>
+                      </select>
+                    </label>
+                    <label>Vertical
+                      <select id="reVertical">
+                        <option>Air purification &amp; home appliances</option>
+                        <option>Medical &amp; health devices</option>
+                        <option>Automotive &amp; e-mobility</option>
+                        <option>Audio, gaming &amp; consumer electronics</option>
+                        <option>AgriTech / rugged IoT</option>
+                        <option>Water purification</option>
+                        <option>Robotics / industrial automation</option>
+                        <option>Smart home / connected devices</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label class="full">Customer requirements<textarea id="reRequirements" rows="5" placeholder="Paste or describe the customer's stated requirements, criteria and evaluation factors…"></textarea></label>
+                  <label>Current stage<input id="reStage" placeholder="e.g. RFI received, evaluating suppliers"></label>
+                  <div class="actions full"><button class="primary" id="evaluateRfxBtn">Evaluate RFX</button></div>
+                </div>
+
+                <!-- Legacy RFX Scoring Tool -->
+                <div class="pro-form-card" style="margin-top:16px;">
+                  <div class="section-title">Internal UMD Scoring Tool</div>
+                  <p class="source-list" style="margin-bottom:10px;">Score each criterion 1–5 to calculate Customer Level, Project Level and Business Score using Intretech's internal RFX evaluation framework.</p>
+                  <div id="rfxLegacyScoringMount"></div>
+                </div>
+              </div>
+              <div class="pro-output-col">
+                <div id="reOutput" class="ps-output-area">
+                  <div class="empty-state"><div class="empty-mark">RFX</div><h2>RFX evaluation generates here.</h2><p>Fill in the customer requirements and click Evaluate RFX to generate a capability matrix, gaps analysis and win themes.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage Progression -->
+          <div id="rfxStages" class="rfx-section-panel hidden">
+            <div class="rfx-stages-layout">
+              <div class="card" style="margin-bottom:16px;">
+                <p class="eyebrow">RFX Evaluator</p>
+                <h2>Stage Progression Guide</h2>
+                <p class="source-list">Detailed guidance for each RFX stage: what to include, what to ask, success criteria and tactical advice.</p>
+              </div>
+
+              <!-- RFI Accordion -->
+              <div class="accordion-item" data-accordion="rfi">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge">RFI</span>
+                    <div>
+                      <strong>Request for Information Stage</strong>
+                      <p class="source-list" style="margin:0;">Early information gathering — establish credibility before RFQ</p>
+                    </div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Purpose</h4>
+                      <p>The RFI stage is about early information gathering. Your goal is to establish technical credibility and position Intretech as a serious partner before the customer has defined their requirements fully. Avoid pricing discussions — focus on engineering partnership language.</p>
+                      <h4>What to include in your response</h4>
+                      <ul>
+                        <li>Company overview: Intretech Group, subsidiaries, global footprint</li>
+                        <li>Capability summary: R&amp;D, PCBA, plastics/tooling, FATP, test systems, automation</li>
+                        <li>Multi-site resilience: China, Malaysia, Hungary, Mexico</li>
+                        <li>Relevant case studies by vertical (anonymised if required)</li>
+                        <li>Footprint map: site locations, headcount, certifications</li>
+                        <li>OEM/ODM/JDM model explanation</li>
+                        <li>Key differentiators vs. Tier-1 EMS incumbents</li>
+                        <li>Next steps you propose: DFM review, technical workshop, factory visit</li>
+                      </ul>
+                      <h4>Success criteria</h4>
+                      <p>Progressing to the RFQ shortlist. Getting a follow-up technical meeting or discovery call. Being invited to submit an RFQ.</p>
+                      <h4>Tactics</h4>
+                      <ul>
+                        <li>Lead with technical credibility, not price</li>
+                        <li>Use engineering partnership language — "co-development", "NPI support", "EVT partner"</li>
+                        <li>Avoid generic capability lists — tailor to their vertical and product category</li>
+                        <li>Propose a DFM review or technical scoping session as your CTA</li>
+                        <li>Assign a senior technical contact as the named account manager</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>Key discovery questions to ask the customer</h4>
+                      <ul>
+                        <li>What product category or platform is this RFI for?</li>
+                        <li>What is the target annual volume and market region?</li>
+                        <li>What lifecycle stage is the product at: concept, EVT, DVT?</li>
+                        <li>Are you seeking OEM, ODM, or full co-development (JDM)?</li>
+                        <li>What are the top three technical challenges you expect?</li>
+                        <li>What certifications are required (CE, FCC, UKCA, ISO13485)?</li>
+                        <li>Do you have an incumbent CM, and what is prompting this RFI?</li>
+                        <li>What does success look like for this CM selection process?</li>
+                        <li>Who are the key stakeholders: engineering, procurement, quality, executive?</li>
+                        <li>What is the expected timeline to RFQ and first production?</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RFQ Accordion -->
+              <div class="accordion-item" data-accordion="rfq">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge">RFQ</span>
+                    <div>
+                      <strong>Request for Quotation Stage</strong>
+                      <p class="source-list" style="margin:0;">Costed response to defined requirements</p>
+                    </div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Purpose</h4>
+                      <p>The RFQ stage requires a costed, commercially binding response to defined product requirements. Your goal is to be shortlisted for RFP or awarded directly. Use VA/VE framing and DFM notes to differentiate beyond price.</p>
+                      <h4>What to include in the RFQ response</h4>
+                      <ul>
+                        <li>BOM cost breakdown: materials, PCBA, labour, overhead</li>
+                        <li>NRE (Non-Recurring Engineering) costs: tooling, fixtures, test jigs</li>
+                        <li>Tooling plan: soft-to-hard tooling path, lead times</li>
+                        <li>MOQ and annual volume pricing tiers</li>
+                        <li>Lead times: EVT samples, DVT build, PVT ramp, FATP steady state</li>
+                        <li>Payment terms and incoterms</li>
+                        <li>Regional FATP options and landed-cost model</li>
+                        <li>VA/VE suggestions: DFM improvements that reduce cost without reducing quality</li>
+                        <li>Quality plan: IPC standards, yield targets, test coverage</li>
+                      </ul>
+                      <h4>Success criteria</h4>
+                      <p>Shortlisted for RFP or directly awarded. Customer requests a technical clarification call. You are invited to a site visit or factory tour.</p>
+                      <h4>Tactics</h4>
+                      <ul>
+                        <li>Frame total cost of ownership, not just unit price</li>
+                        <li>Include VA/VE suggestions — shows engineering engagement</li>
+                        <li>Offer a preliminary cost directionally before formal submission to reduce surprise</li>
+                        <li>Assign an internal project owner and communicate their name to the customer</li>
+                        <li>Include DFM notes relevant to their product category as a value-add</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>Key questions to ask before pricing</h4>
+                      <ul>
+                        <li>Is the BOM fully defined, or are there outstanding component decisions?</li>
+                        <li>What are the primary and secondary PCBA layers and component count?</li>
+                        <li>What certifications are included in scope (CE, FCC, UKCA, ISO)?</li>
+                        <li>Is tooling in scope or is existing tooling being transferred?</li>
+                        <li>What is the target landed cost and which incoterms apply?</li>
+                        <li>Are there preferred component vendors or approved supplier lists?</li>
+                        <li>What are the packaging requirements and retail channel?</li>
+                        <li>Is there a test specification or will Intretech define test coverage?</li>
+                        <li>What are the FATP site preferences and how are they weighted in evaluation?</li>
+                        <li>Will this be priced as a standalone product or platform family?</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RFP Accordion -->
+              <div class="accordion-item" data-accordion="rfp">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge">RFP</span>
+                    <div>
+                      <strong>Request for Proposal Stage</strong>
+                      <p class="source-list" style="margin:0;">Full strategic proposal to win the business</p>
+                    </div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Purpose</h4>
+                      <p>The RFP is your full strategic case for why Intretech should be selected as the manufacturing partner. This is the stage where relationship depth, technical differentiation and commercial creativity matter most. Every section should be tailored to the customer's product, team and priorities.</p>
+                      <h4>What to include in the RFP</h4>
+                      <ul>
+                        <li>Executive summary: why Intretech, why now, what success looks like</li>
+                        <li>Capability proof: specific to their product category and lifecycle stage</li>
+                        <li>Programme plan: NPI timeline, EVT/DVT/PVT gates, ramp plan</li>
+                        <li>Quality plan: IPC standards, PFMEA, control plans, yield targets</li>
+                        <li>Cost model: BOM, NRE, tooling, volume tiers, landed-cost comparison</li>
+                        <li>Risk mitigation: supply chain, technical, compliance, capacity</li>
+                        <li>Team structure: dedicated project manager, engineering lead, quality lead</li>
+                        <li>Reference contacts: existing customers in the same vertical (if approved)</li>
+                        <li>Proposed next steps: NDA, pilot programme, factory visit, Letter of Intent</li>
+                      </ul>
+                      <h4>Win strategies</h4>
+                      <ul>
+                        <li>Relationship depth: multi-threaded champion coverage across EE, ME, procurement and executive</li>
+                        <li>Technical differentiation: engineering co-development from EVT stage, not just manufacturing</li>
+                        <li>Commercial creativity: pilot NRE, phased volume commitment, VA/VE savings share</li>
+                        <li>Executive sponsorship: bring in Intretech senior leadership for strategic account alignment</li>
+                        <li>Factory visit: use a site tour to make the relationship tangible before award</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>Success criteria</h4>
+                      <p>Contract, NDA or Letter of Intent signed. Pilot programme or EVT build agreed. Customer team visits a site or requests dedicated engineering resource.</p>
+                      <h4>Tactical advice</h4>
+                      <ul>
+                        <li>Assign an executive sponsor from Intretech for all strategic accounts at RFP stage</li>
+                        <li>Offer a factory visit as a standard part of the RFP response process</li>
+                        <li>Propose a pilot programme or NRE project to establish trust before full volume commitment</li>
+                        <li>Coach your internal champion to present Intretech's RFP internally — provide them a one-page executive summary they can forward</li>
+                        <li>Prepare a response to the incumbent CM defence scenario: what will the customer's current CM offer to retain them?</li>
+                        <li>Log every RFP interaction in HubSpot with contact, date, action and next step</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tactical Strategies -->
+          <div id="rfxTactics" class="rfx-section-panel hidden">
+            <div class="rfx-stages-layout">
+              <div class="card" style="margin-bottom:16px;">
+                <p class="eyebrow">RFX Evaluator</p>
+                <h2>Tactical Strategies</h2>
+                <p class="source-list">Six tactical playbooks for advanced selling situations. Click any strategy to expand the full guide.</p>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T1</span>
+                    <div><strong>Executive Engagement</strong><p class="source-list" style="margin:0;">When and how to bring in senior Intretech leadership</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>When to activate executive engagement</h4>
+                      <ul>
+                        <li>The account is Category A (revenue ≥ $500M) or flagged as a VIP strategic target</li>
+                        <li>The customer's executive is involved or the deal is stuck at a senior level</li>
+                        <li>A competitor's executive team has already engaged the customer</li>
+                        <li>The deal is at RFP stage with a &gt;$5M annual value</li>
+                        <li>A factory visit or strategic alignment meeting has been requested</li>
+                        <li>There is an internal escalation or concern about Intretech's capacity or strategic fit</li>
+                      </ul>
+                      <h4>How to prepare</h4>
+                      <ul>
+                        <li>Brief the executive sponsor with a one-page account summary: account, revenue, signal, deal stage, key contacts, competitors, risks</li>
+                        <li>Define the executive's role: figurehead sponsorship, technical credibility or commercial authority</li>
+                        <li>Set clear objectives for the executive meeting: relationship building, deal acceleration, factory visit confirmation, or LOI discussion</li>
+                        <li>Pre-agree talking points and avoid over-briefing — executives sell on relationship and strategic vision, not spec sheets</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>After the executive meeting</h4>
+                      <ul>
+                        <li>Log the interaction in HubSpot within 24 hours</li>
+                        <li>Follow up with a tailored note from the executive that references a specific point from the conversation</li>
+                        <li>Use the meeting to accelerate the next step: NDA, factory visit, pilot programme or LOI</li>
+                        <li>Keep the executive engaged at key milestones — avoid going dark after the initial meeting</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T2</span>
+                    <div><strong>Factory Visit Strategy</strong><p class="source-list" style="margin:0;">Using site visits to accelerate trust and close</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Why factory visits close deals</h4>
+                      <p>A factory visit is the single most powerful trust-building activity available in complex manufacturing sales. It makes Intretech's capabilities tangible, builds personal relationships with the customer's engineering and procurement teams, and significantly reduces the risk perception of switching from an incumbent CM.</p>
+                      <h4>Preparing the visit</h4>
+                      <ul>
+                        <li>Identify which capability lines are most relevant to the customer's product category</li>
+                        <li>Prepare a visit agenda tailored to the customer's key stakeholders: engineering, procurement, quality</li>
+                        <li>Create a customer-specific dossier: their product category, known challenges, how relevant production lines address them</li>
+                        <li>Assign a dedicated engineering host with domain expertise in the customer's vertical</li>
+                        <li>Prepare a clean, well-organised facility tour route — first impressions matter</li>
+                        <li>Brief all Intretech staff who will interact with the visiting team</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>During and after the visit</h4>
+                      <ul>
+                        <li>Let the customer's engineers ask questions and show genuine interest — do not over-present</li>
+                        <li>Highlight real production examples from a similar product category (with appropriate confidentiality)</li>
+                        <li>Capture any technical concerns or questions raised during the visit as follow-up actions</li>
+                        <li>Follow up within 48 hours with a personalised note from the Intretech host engineer</li>
+                        <li>Propose a specific next step in the follow-up: technical scoping, DFM review, or RFX submission timeline</li>
+                        <li>Log the visit, attendees, key discussions and follow-ups in HubSpot</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T3</span>
+                    <div><strong>Pilot / NRE Strategy</strong><p class="source-list" style="margin:0;">Using a low-risk pilot project to establish the relationship</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Why pilots work</h4>
+                      <p>A pilot project or NRE engagement lowers the barrier to entry for customers evaluating Intretech against an incumbent CM. Instead of asking for a full volume commitment, you ask for a defined, bounded project where Intretech can demonstrate capabilities at low risk to the customer.</p>
+                      <h4>Ideal pilot scenarios</h4>
+                      <ul>
+                        <li>A new product design where no CM is yet established (greenfield NPI)</li>
+                        <li>A product variant or SKU extension where Intretech can compete on speed and cost</li>
+                        <li>A DFM review or feasibility study before full RFQ</li>
+                        <li>A prototype build or EVT engagement at a fixed NRE fee</li>
+                        <li>A regional FATP pilot for EU/US market entry while China FATP continues</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>Structuring the pilot proposal</h4>
+                      <ul>
+                        <li>Define clear scope, deliverables, timeline and cost</li>
+                        <li>Propose a fixed NRE fee rather than open-ended hourly billing</li>
+                        <li>Tie the pilot deliverables to the customer's actual evaluation criteria</li>
+                        <li>Include a written success criteria that both parties agree to before starting</li>
+                        <li>Assign a dedicated project manager and engineering lead from Intretech</li>
+                        <li>Plan the pilot handover meeting as a natural bridge to the full RFQ discussion</li>
+                        <li>Log the pilot project as a deal in HubSpot with a clear close date and next steps</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T4</span>
+                    <div><strong>Competitive Defence</strong><p class="source-list" style="margin:0;">How to respond when an incumbent CM is being defended</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Understanding the incumbent defence</h4>
+                      <p>When an existing CM learns they are at risk of losing an account, they will typically offer price concessions, capacity commitments or executive attention they never provided before. Your job is to help the customer understand the risk of staying with an incumbent who only improves under competitive pressure.</p>
+                      <h4>Strategies to counter the incumbent</h4>
+                      <ul>
+                        <li>Surface switching cost objections early — address them directly rather than hoping they won't arise</li>
+                        <li>Demonstrate that Intretech's multi-site FATP, OEM/ODM model and engineering co-development model are structurally different from the incumbent's offer</li>
+                        <li>Use the VA/VE and DFM framing: "We found 4 cost reduction opportunities in the first DFM review that your current CM never surfaced"</li>
+                        <li>Coach your champion on how to frame the internal business case for switching: risk reduction, cost optimisation, supply chain resilience</li>
+                        <li>Propose a parallel pilot or secondary product that does not immediately threaten the incumbent — establish trust before asking for a full transfer</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>What not to do</h4>
+                      <ul>
+                        <li>Do not criticise the incumbent directly — it shifts the conversation to loyalty rather than value</li>
+                        <li>Do not match the incumbent's price concession without understanding the underlying economics</li>
+                        <li>Do not rely on price alone — if your only advantage is cost, you will always be vulnerable to a counter-offer</li>
+                        <li>Do not assume the customer champion will fight internally for you — coach them with materials they can use</li>
+                      </ul>
+                      <h4>Key messages to reinforce</h4>
+                      <ul>
+                        <li>"Our multi-site FATP model gives you supply chain resilience that a single-site CM cannot match"</li>
+                        <li>"Our engineering co-development from EVT stage reduces your re-spin risk — we engage before design freeze"</li>
+                        <li>"We have been transparent about our capabilities and cost from the first conversation — that's how we operate"</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T5</span>
+                    <div><strong>Champion Coaching</strong><p class="source-list" style="margin:0;">How to coach your internal champion to sell Intretech internally</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>Who is your champion?</h4>
+                      <p>Your champion is the person inside the customer's organisation who believes in Intretech's value and is willing to advocate for you in internal meetings you cannot attend. Champions are usually in R&amp;D, NPI, engineering or operations — rarely procurement, who are often vendor-neutral or incumbent-loyal.</p>
+                      <h4>Building the champion</h4>
+                      <ul>
+                        <li>Identify the champion through discovery — who is most engaged, who asks the best questions, who shares internal context?</li>
+                        <li>Give them materials they can use internally: one-page capability summary, vertical-specific case study, VA/VE example</li>
+                        <li>Make them look good internally — position them as the person who found the better CM, not the person pushing a switch</li>
+                        <li>Respect their position — never ask them to do something that puts them at internal risk</li>
+                        <li>Maintain regular contact: brief updates, relevant news, pre-meeting prep</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>Arming your champion</h4>
+                      <ul>
+                        <li>One-page "Why Intretech" summary with 3 bullet points for their internal audience (not a full capability deck)</li>
+                        <li>A prepared answer to "why change CM now?" — framed around business risk and opportunity, not dissatisfaction</li>
+                        <li>A summary of the cost and quality impact of the current situation vs. Intretech's proposed approach</li>
+                        <li>An executive-ready slide or talking points for their internal business case presentation</li>
+                        <li>Contact details for an Intretech reference customer in the same vertical (if approved)</li>
+                      </ul>
+                      <h4>Champion risk signals</h4>
+                      <ul>
+                        <li>Goes quiet after a period of active engagement</li>
+                        <li>Stops sharing internal context or becomes more guarded</li>
+                        <li>A competitor has re-engaged the customer at a higher level</li>
+                        <li>Procurement has taken over the process and the champion is no longer involved</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <button class="accordion-trigger">
+                  <div class="accordion-trigger-inner">
+                    <span class="accordion-stage-badge tactic">T6</span>
+                    <div><strong>Price &amp; Value Framing</strong><p class="source-list" style="margin:0;">How to frame Intretech's pricing vs low-cost alternatives</p></div>
+                  </div>
+                  <span class="accordion-chevron">▼</span>
+                </button>
+                <div class="accordion-body" style="display:none;">
+                  <div class="accordion-grid">
+                    <div class="accordion-col">
+                      <h4>The total cost of ownership argument</h4>
+                      <p>Intretech is not the lowest-cost CM option in every scenario. The correct framing is total cost of ownership (TCO) — which includes unit cost, NRE, tooling, re-spin cost, quality escapes, logistics, compliance, warranty returns and time-to-market. When these are included, Intretech's model is typically more cost-efficient than low-cost alternatives for 50K–500K volume runs.</p>
+                      <h4>Key TCO framing points</h4>
+                      <ul>
+                        <li>Re-spin cost: a single PCB re-spin at DVT costs more than a proactive DFM review at EVT</li>
+                        <li>Quality escapes: one field return campaign eliminates years of unit-cost savings</li>
+                        <li>Time-to-market: a 3-month delay in launch costs more than any CM price premium</li>
+                        <li>Tooling transfer cost: moving tooling from an incumbent CM carries hidden NRE and schedule risk</li>
+                        <li>Compliance: getting certifications right the first time with engineering support vs. re-testing after DVT failures</li>
+                      </ul>
+                    </div>
+                    <div class="accordion-col">
+                      <h4>How to present price</h4>
+                      <ul>
+                        <li>Never present unit cost in isolation — always contextualise with volume tier, BOM assumptions and NRE</li>
+                        <li>Offer a directional cost estimate early in the process to avoid surprise at RFQ submission</li>
+                        <li>Present VA/VE savings alongside cost to offset any premium perception</li>
+                        <li>Frame regional FATP cost premium against EU/US compliance value and landed-cost reduction</li>
+                        <li>Use the competitor matrix to show that Tier-1 EMS alternatives carry higher minimum volumes and lower responsiveness</li>
+                      </ul>
+                      <h4>Phrases to use</h4>
+                      <ul>
+                        <li>"The unit cost is one part of the picture — let me show you the full landed-cost model"</li>
+                        <li>"We identified four DFM improvements that reduce BOM cost by an estimated 8–12% — that changes the economics significantly"</li>
+                        <li>"Our Hungary FATP adds a small per-unit premium but eliminates EU import duties and 3-week logistics lead time"</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Add/Edit Modal -->
+    <div id="accountModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Account details">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add Target Account</h3>
+          <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-pair">
+            <label>Account name<input id="modalAccountName" placeholder="Company name"></label>
+            <label>Vertical
+              <select id="modalVertical">
+                <option>Air purification &amp; home appliances</option>
+                <option>Medical &amp; health devices</option>
+                <option>Automotive &amp; e-mobility</option>
+                <option>Audio, gaming &amp; consumer electronics</option>
+                <option>AgriTech / rugged IoT</option>
+                <option>Water purification</option>
+                <option>Robotics / industrial automation</option>
+                <option>Smart home / connected devices</option>
+              </select>
+            </label>
+          </div>
+          <label>Stage
+            <select id="modalStage">
+              <option value="Researching">Researching</option>
+              <option value="Engaged">Engaged</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Proposal / RFX">Proposal / RFX</option>
+              <option value="Won">Won</option>
+              <option value="Paused">Paused</option>
+            </select>
+          </label>
+          <div class="modal-section-label">Key Champions <button class="secondary compact" id="addChampionBtn" type="button">+ Add Champion</button></div>
+          <div id="championsList" class="champions-list"></div>
+          <div class="field-pair">
+            <label>Last contact date<input id="modalLastContact" type="date"></label>
+            <label>Website / LinkedIn<input id="modalWebsite" placeholder="https://company.com"></label>
+          </div>
+          <label class="full">SDR notes<textarea id="modalNotes" rows="3" placeholder="Key context, pain signals, prior outreach history…"></textarea></label>
+        </div>
+        <div class="modal-footer">
+          <button class="secondary" id="modalCancel">Cancel</button>
+          <button class="primary" id="modalSave">Save Account</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js?v=11"></script>
+</body>
+</html>
